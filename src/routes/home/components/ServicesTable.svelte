@@ -1,6 +1,5 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
-  import { onMount } from "svelte";
   import {
     Plus,
     Search,
@@ -56,6 +55,7 @@
 
   type ServiceState = {
     selectedVersion: string;
+    downloadedVersions: string[];
     availableVersions: string[];
     isPickerOpen: boolean;
     isAddingVersion: boolean;
@@ -70,6 +70,7 @@
         s.versionKey,
         {
           selectedVersion: s.version,
+          downloadedVersions: [s.version],
           availableVersions: [],
           isPickerOpen: false,
           isAddingVersion: false,
@@ -131,6 +132,11 @@
   const selectVersion = (serviceKey: string, version: string) => {
     const state = serviceStates[serviceKey];
     state.selectedVersion = version;
+    if (!state.downloadedVersions.includes(version)) {
+      state.downloadedVersions = [...state.downloadedVersions, version].sort(
+        compareVersionsDesc,
+      );
+    }
     state.isPickerOpen = false;
     state.isAddingVersion = false;
     state.search = "";
@@ -139,6 +145,11 @@
   const openAddMode = (serviceKey: string) => {
     const state = serviceStates[serviceKey];
     state.isAddingVersion = true;
+    state.search = "";
+
+    if (state.availableVersions.length === 0 && !state.isLoading) {
+      void loadVersions(serviceKey);
+    }
   };
 
   const closeAddMode = (serviceKey: string) => {
@@ -154,13 +165,9 @@
     );
   };
 
-  const suggestedVersions = (serviceKey: string) => {
-    return serviceStates[serviceKey].availableVersions.slice(0, 12);
+  const downloadedVersions = (serviceKey: string) => {
+    return serviceStates[serviceKey].downloadedVersions;
   };
-
-  onMount(() => {
-    services.forEach((s) => loadVersions(s.versionKey));
-  });
 </script>
 
 <div class="w-full max-w-3xl mt-4 rounded-md border">
@@ -235,46 +242,48 @@
                     </p>
                   {:else}
                     <p class="mb-2 text-xs text-muted-foreground">
-                      Versiones disponibles de {service.name}
+                      Versiones descargadas de {service.name}
                     </p>
                   {/if}
 
-                  {#if state.isLoading}
-                    <p class="text-xs text-muted-foreground">
-                      Cargando versiones...
-                    </p>
-                  {:else if state.loadError}
-                    <p class="text-xs text-red-500">{state.loadError}</p>
-                  {:else if state.isAddingVersion}
-                    <div class="relative">
-                      <Search
-                        class="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground"
-                      />
-                      <input
-                        type="text"
-                        bind:value={state.search}
-                        placeholder="Buscar versión..."
-                        class="mb-2 w-full rounded border pl-8 pr-2 py-1 text-xs"
-                      />
-                    </div>
-
-                    {#if filteredVersions(service.versionKey).length === 0}
+                  {#if state.isAddingVersion}
+                    {#if state.isLoading}
                       <p class="text-xs text-muted-foreground">
-                        No hay resultados para tu búsqueda.
+                        Cargando versiones...
                       </p>
+                    {:else if state.loadError}
+                      <p class="text-xs text-red-500">{state.loadError}</p>
                     {:else}
-                      <div class="max-h-48 overflow-y-auto rounded border">
-                        {#each filteredVersions(service.versionKey) as version}
-                          <button
-                            type="button"
-                            class="block w-full border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
-                            onclick={() =>
-                              selectVersion(service.versionKey, version)}
-                          >
-                            {version}
-                          </button>
-                        {/each}
+                      <div class="relative">
+                        <Search
+                          class="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground"
+                        />
+                        <input
+                          type="text"
+                          bind:value={state.search}
+                          placeholder="Buscar versión..."
+                          class="mb-2 w-full rounded border pl-8 pr-2 py-1 text-xs"
+                        />
                       </div>
+
+                      {#if filteredVersions(service.versionKey).length === 0}
+                        <p class="text-xs text-muted-foreground">
+                          No hay resultados para tu búsqueda.
+                        </p>
+                      {:else}
+                        <div class="max-h-48 overflow-y-auto rounded border">
+                          {#each filteredVersions(service.versionKey) as version}
+                            <button
+                              type="button"
+                              class="block w-full border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
+                              onclick={() =>
+                                selectVersion(service.versionKey, version)}
+                            >
+                              {version}
+                            </button>
+                          {/each}
+                        </div>
+                      {/if}
                     {/if}
 
                     <button
@@ -286,9 +295,9 @@
                       Volver
                     </button>
                   {:else}
-                    {#if suggestedVersions(service.versionKey).length > 0}
+                    {#if downloadedVersions(service.versionKey).length > 0}
                       <div class="max-h-48 overflow-y-auto rounded border">
-                        {#each suggestedVersions(service.versionKey) as version}
+                        {#each downloadedVersions(service.versionKey) as version}
                           <button
                             type="button"
                             class="block w-full border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
@@ -301,7 +310,7 @@
                       </div>
                     {:else}
                       <p class="text-xs text-muted-foreground">
-                        No hay versiones disponibles por ahora.
+                        No hay versiones descargadas por ahora.
                       </p>
                     {/if}
 
@@ -311,7 +320,7 @@
                       onclick={() => openAddMode(service.versionKey)}
                     >
                       <Plus class="h-3 w-3" />
-                      Añadir versión
+                      Buscar otra versión
                     </button>
                   {/if}
                 </div>
