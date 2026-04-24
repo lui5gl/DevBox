@@ -9,6 +9,10 @@
     Database,
     Zap,
     Globe,
+    Tag,
+    Activity,
+    Plug,
+    MoreHorizontal,
   } from "lucide-svelte";
 
   type ServiceRow = {
@@ -145,10 +149,30 @@
             Service
           </div>
         </th>
-        <th class="p-3">Version</th>
-        <th class="p-3">Status</th>
-        <th class="p-3">Port</th>
-        <th class="p-3">Action</th>
+        <th class="p-3">
+          <div class="flex items-center gap-2">
+            <Tag class="h-4 w-4" />
+            Version
+          </div>
+        </th>
+        <th class="p-3">
+          <div class="flex items-center gap-2">
+            <Activity class="h-4 w-4" />
+            Status
+          </div>
+        </th>
+        <th class="p-3">
+          <div class="flex items-center gap-2">
+            <Plug class="h-4 w-4" />
+            Port
+          </div>
+        </th>
+        <th class="p-3">
+          <div class="flex items-center gap-2">
+            <MoreHorizontal class="h-4 w-4" />
+            Action
+          </div>
+        </th>
       </tr>
     </thead>
     <tbody>
