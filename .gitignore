@@ -1,10 +1,23 @@
 .DS_Store
-node_modules
-/build
-/.svelte-kit
-/package
+
+# Node and SvelteKit
+node_modules/
+build/
+.svelte-kit/
+package/
+
+# Environment files
 .env
 .env.*
 !.env.example
+
+# Vite cache and temp files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Tauri / Rust build output
+src-tauri/target/
+src-tauri/target_check/
+
+# Generated UI library files (shadcn-svelte)
+src/lib/components/ui/
