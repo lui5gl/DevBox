@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button/index.js";
   import Box from "@lucide/svelte/icons/box";
   import SettingsIcon from "@lucide/svelte/icons/settings";
 </script>
@@ -10,8 +9,11 @@
     DevBox
   </div>
 
-  <Button variant="outline">
+  <button
+    type="button"
+    class="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted"
+  >
     <SettingsIcon class="h-4 w-4" />
     Configuration
-  </Button>
+  </button>
 </section>
