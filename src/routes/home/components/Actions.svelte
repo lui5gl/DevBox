@@ -1,8 +1,8 @@
 <script lang="ts">
-  import DatabaseIcon from "@lucide/svelte/icons/database";
   import FolderOpenIcon from "@lucide/svelte/icons/folder-open";
   import GlobeIcon from "@lucide/svelte/icons/globe";
   import PlayIcon from "@lucide/svelte/icons/play";
+  import SettingsIcon from "@lucide/svelte/icons/settings";
 </script>
 
 <section class="mx-auto flex flex-wrap items-center justify-center gap-2">
@@ -18,20 +18,20 @@
     class="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted"
   >
     <GlobeIcon class="h-4 w-4" />
-    Open Web
+    Web
   </button>
   <button
     type="button"
     class="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted"
   >
-    <DatabaseIcon class="h-4 w-4" />
-    Database
+    <SettingsIcon class="h-4 w-4" />
+    Settings
   </button>
   <button
     type="button"
     class="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted"
   >
     <FolderOpenIcon class="h-4 w-4" />
-    Open Directory
+    Root
   </button>
 </section>
