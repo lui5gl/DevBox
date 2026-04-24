@@ -92,17 +92,22 @@
     downloadedVersions: string[];
     availableVersions: string[];
     isPickerOpen: boolean;
+    pickerPlacement: DropdownPlacement;
     isAddingVersion: boolean;
     search: string;
     isLoading: boolean;
     loadError: string;
     status: ServiceStatus;
     isStatusPickerOpen: boolean;
+    statusPlacement: DropdownPlacement;
     port: number;
     portDraft: string;
     portError: string;
     isPortEditorOpen: boolean;
+    portPlacement: DropdownPlacement;
   };
+
+  type DropdownPlacement = "up" | "down";
 
   let serviceStates: Record<string, ServiceState> = $state(
     Object.fromEntries(
@@ -113,16 +118,19 @@
           downloadedVersions: [s.version],
           availableVersions: [],
           isPickerOpen: false,
+          pickerPlacement: "down",
           isAddingVersion: false,
           search: "",
           isLoading: false,
           loadError: "",
           status: s.status,
           isStatusPickerOpen: false,
+          statusPlacement: "down",
           port: s.port,
           portDraft: String(s.port),
           portError: "",
           isPortEditorOpen: false,
+          portPlacement: "down",
         },
       ]),
     ),
@@ -166,13 +174,51 @@
     }
   };
 
-  const togglePicker = (serviceKey: string) => {
+  const dropdownPlacement = (
+    event: MouseEvent,
+    expectedHeight: number,
+  ): DropdownPlacement => {
+    const trigger = event.currentTarget as HTMLElement;
+    const rect = trigger.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    return spaceBelow < expectedHeight && spaceAbove > spaceBelow ? "up" : "down";
+  };
+
+  const placementClass = (placement: DropdownPlacement) => {
+    return placement === "up" ? "bottom-full mb-2" : "top-full mt-2";
+  };
+
+  const closeDropdowns = (exceptServiceKey = "") => {
+    Object.entries(serviceStates).forEach(([key, state]) => {
+      if (key === exceptServiceKey) return;
+
+      state.isPickerOpen = false;
+      state.isAddingVersion = false;
+      state.search = "";
+      state.isStatusPickerOpen = false;
+      state.isPortEditorOpen = false;
+      state.portError = "";
+    });
+  };
+
+  const togglePicker = (serviceKey: string, event: MouseEvent) => {
     const state = serviceStates[serviceKey];
-    state.isPickerOpen = !state.isPickerOpen;
-    if (state.isPickerOpen) {
+    const willOpen = !state.isPickerOpen;
+
+    closeDropdowns(serviceKey);
+    state.isStatusPickerOpen = false;
+    state.isPortEditorOpen = false;
+    state.portError = "";
+
+    if (willOpen) {
+      state.pickerPlacement = dropdownPlacement(event, 260);
       state.isAddingVersion = false;
       state.search = "";
     }
+
+    state.isPickerOpen = willOpen;
   };
 
   const selectVersion = (serviceKey: string, version: string) => {
@@ -240,9 +286,22 @@
     return "text-muted-foreground";
   };
 
-  const toggleStatusPicker = (serviceKey: string) => {
+  const toggleStatusPicker = (serviceKey: string, event: MouseEvent) => {
     const state = serviceStates[serviceKey];
-    state.isStatusPickerOpen = !state.isStatusPickerOpen;
+    const willOpen = !state.isStatusPickerOpen;
+
+    closeDropdowns(serviceKey);
+    state.isPickerOpen = false;
+    state.isAddingVersion = false;
+    state.search = "";
+    state.isPortEditorOpen = false;
+    state.portError = "";
+
+    if (willOpen) {
+      state.statusPlacement = dropdownPlacement(event, 180);
+    }
+
+    state.isStatusPickerOpen = willOpen;
   };
 
   const selectStatus = (serviceKey: string, status: ServiceStatus) => {
@@ -266,15 +325,27 @@
     state.isPortEditorOpen = false;
   };
 
-  const togglePortEditor = (serviceKey: string) => {
+  const togglePortEditor = (serviceKey: string, event: MouseEvent) => {
     const state = serviceStates[serviceKey];
-    state.isPortEditorOpen = !state.isPortEditorOpen;
-    state.portDraft = String(state.port);
-    state.portError = "";
+    const willOpen = !state.isPortEditorOpen;
+
+    closeDropdowns(serviceKey);
+    state.isPickerOpen = false;
+    state.isAddingVersion = false;
+    state.search = "";
+    state.isStatusPickerOpen = false;
+
+    if (willOpen) {
+      state.portPlacement = dropdownPlacement(event, 150);
+      state.portDraft = String(state.port);
+      state.portError = "";
+    }
+
+    state.isPortEditorOpen = willOpen;
   };
 </script>
 
-<div class="w-full max-w-3xl overflow-hidden rounded-lg text-card-foreground">
+<div class="w-full max-w-3xl rounded-lg text-card-foreground">
   <table class="w-full text-sm">
     <thead class="border-b text-left text-muted-foreground font-semibold">
       <tr>
@@ -329,7 +400,7 @@
                 class="inline-flex h-8 items-center gap-2 rounded-md border border-transparent bg-transparent px-2 text-left transition-colors hover:border-input hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={`Select ${service.name} version`}
                 title={`Select ${service.name} version`}
-                onclick={() => togglePicker(service.versionKey)}
+                onclick={(event) => togglePicker(service.versionKey, event)}
               >
                 <span>{state.selectedVersion}</span>
                 <ChevronDown class="h-3 w-3 text-muted-foreground" />
@@ -337,7 +408,7 @@
 
               {#if state.isPickerOpen}
                 <div
-                  class="absolute left-0 z-10 mt-2 w-72 rounded-md border border-border/60 bg-popover p-3 text-popover-foreground shadow-lg"
+                  class={`absolute left-0 z-10 w-72 rounded-md border border-border/60 bg-popover p-3 text-popover-foreground shadow-lg ${placementClass(state.pickerPlacement)}`}
                 >
                   {#if state.isAddingVersion}
                     <p class="mb-2 text-xs text-muted-foreground">
@@ -449,7 +520,7 @@
                 class="inline-flex h-8 items-center gap-2 rounded-md border border-transparent bg-transparent px-2 text-left transition-colors hover:border-input hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={`Change ${service.name} status`}
                 title={`Change ${service.name} status`}
-                onclick={() => toggleStatusPicker(service.versionKey)}
+                onclick={(event) => toggleStatusPicker(service.versionKey, event)}
               >
                 <span>{statusLabel(state.status)}</span>
                 <ChevronDown class="h-3 w-3" />
@@ -457,7 +528,7 @@
 
               {#if state.isStatusPickerOpen}
                 <div
-                  class="absolute left-0 z-10 mt-2 w-56 rounded-md border border-border/60 bg-popover p-2 text-popover-foreground shadow-lg"
+                  class={`absolute left-0 z-10 w-56 rounded-md border border-border/60 bg-popover p-2 text-popover-foreground shadow-lg ${placementClass(state.statusPlacement)}`}
                 >
                   {#each statusOptions as option}
                     {@const StatusIcon = option.icon}
@@ -494,7 +565,7 @@
                 class="inline-flex h-8 items-center gap-2 rounded-md border border-transparent bg-transparent px-2 text-left transition-colors hover:border-input hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={`Change ${service.name} port`}
                 title={`Change ${service.name} port`}
-                onclick={() => togglePortEditor(service.versionKey)}
+                onclick={(event) => togglePortEditor(service.versionKey, event)}
               >
                 <span>{state.port}</span>
                 <ChevronDown class="h-3 w-3 text-muted-foreground" />
@@ -502,7 +573,7 @@
 
               {#if state.isPortEditorOpen}
                 <div
-                  class="absolute right-0 z-10 mt-2 w-56 rounded-md border border-border/60 bg-popover p-3 text-popover-foreground shadow-lg"
+                  class={`absolute right-0 z-10 w-56 rounded-md border border-border/60 bg-popover p-3 text-popover-foreground shadow-lg ${placementClass(state.portPlacement)}`}
                 >
                   <p class="mb-2 text-xs text-muted-foreground">
                     Change {service.name} port
