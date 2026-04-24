@@ -24,16 +24,16 @@
   </button>
   <button
     type="button"
-    class="inline-flex h-8 items-center gap-2 rounded-md border border-transparent bg-transparent px-2 text-sm font-medium text-foreground transition-colors hover:border-input hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
-  >
-    <SettingsIcon class="h-4 w-4" />
-    Settings
-  </button>
-  <button
-    type="button"
     class="inline-flex h-8 items-center gap-2 rounded-md border border-transparent bg-transparent px-2 text-sm font-medium text-muted-foreground transition-colors hover:border-input hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
   >
     <FolderOpenIcon class="h-4 w-4" />
     Root
+  </button>
+  <button
+    type="button"
+    class="inline-flex h-8 items-center gap-2 rounded-md border border-transparent bg-transparent px-2 text-sm font-medium text-foreground transition-colors hover:border-input hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+  >
+    <SettingsIcon class="h-4 w-4" />
+    Settings
   </button>
 </section>
