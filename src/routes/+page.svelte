@@ -5,9 +5,16 @@
   import DatabaseIcon from "@lucide/svelte/icons/database";
   import TerminalIcon from "@lucide/svelte/icons/terminal";
   import ShieldIcon from "@lucide/svelte/icons/shield";
+  import SettingsIcon from "@lucide/svelte/icons/settings";
 </script>
 
-<div class="flex flex-wrap items-center gap-2 md:flex-row">
+<div class="flex flex-col items-center gap-2">
+  <section class="">
+    <Button variant="outline">
+      <SettingsIcon class="h-4 w-4" />
+      Configuration
+    </Button>
+  </section>
   <section class="mx-auto">
     <Button variant="outline">
       <PlayIcon class="h-4 w-4" />
