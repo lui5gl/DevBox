@@ -11,7 +11,7 @@
     Tag,
     Activity,
     Plug,
-    EllipsisVertical,
+    ChevronDown,
     Download,
     CheckCircle2,
   } from "lucide-svelte";
@@ -204,7 +204,6 @@
             Port
           </div>
         </th>
-        <th> </th>
       </tr>
     </thead>
     <tbody>
@@ -223,24 +222,22 @@
               {service.name}
             </div>
           </td>
-          <td class="p-3">{state.selectedVersion}</td>
-          <td class="p-3">{service.status}</td>
-          <td class="p-3">{service.port}</td>
           <td class="p-3">
-            <div class="relative">
+            <div class="relative inline-block">
               <button
                 type="button"
-                class="flex h-8 w-8 items-center justify-center rounded border text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label={`${service.name} options`}
-                title={`${service.name} options`}
+                class="inline-flex h-8 items-center gap-2 rounded border px-2 text-left hover:bg-muted"
+                aria-label={`Select ${service.name} version`}
+                title={`Select ${service.name} version`}
                 onclick={() => togglePicker(service.versionKey)}
               >
-                <EllipsisVertical class="h-4 w-4" />
+                <span>{state.selectedVersion}</span>
+                <ChevronDown class="h-3 w-3 text-muted-foreground" />
               </button>
 
               {#if state.isPickerOpen}
                 <div
-                  class="absolute right-0 z-10 mt-2 w-72 rounded-md border bg-background p-3 shadow-lg"
+                  class="absolute left-0 z-10 mt-2 w-72 rounded-md border bg-background p-3 shadow-lg"
                 >
                   {#if state.isAddingVersion}
                     <p class="mb-2 text-xs text-muted-foreground">
@@ -345,6 +342,8 @@
               {/if}
             </div>
           </td>
+          <td class="p-3">{service.status}</td>
+          <td class="p-3">{service.port}</td>
         </tr>
       {/each}
     </tbody>
