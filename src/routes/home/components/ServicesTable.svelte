@@ -6,24 +6,55 @@
     ArrowLeft,
     Server,
     Database,
+    CircleStop,
     Zap,
     Globe,
     Tag,
     Activity,
+    Ban,
     Plug,
     ChevronDown,
     Download,
     Check,
     CheckCircle2,
+    Play,
   } from "lucide-svelte";
 
   type ServiceRow = {
     name: string;
     version: string;
-    status: "running" | "stopped";
+    status: ServiceStatus;
     port: number;
     versionKey: string;
   };
+
+  type ServiceStatus = "running" | "stopped" | "disabled";
+
+  const statusOptions: {
+    value: ServiceStatus;
+    label: string;
+    description: string;
+    icon: typeof Play;
+  }[] = [
+    {
+      value: "running",
+      label: "Running",
+      description: "Service is active",
+      icon: Play,
+    },
+    {
+      value: "stopped",
+      label: "Stopped",
+      description: "Service is off",
+      icon: CircleStop,
+    },
+    {
+      value: "disabled",
+      label: "Disabled",
+      description: "Service cannot auto-start",
+      icon: Ban,
+    },
+  ];
 
   const services: ServiceRow[] = [
     {
@@ -65,6 +96,8 @@
     search: string;
     isLoading: boolean;
     loadError: string;
+    status: ServiceStatus;
+    isStatusPickerOpen: boolean;
     port: number;
     portDraft: string;
     portError: string;
@@ -84,6 +117,8 @@
           search: "",
           isLoading: false,
           loadError: "",
+          status: s.status,
+          isStatusPickerOpen: false,
           port: s.port,
           portDraft: String(s.port),
           portError: "",
@@ -182,6 +217,26 @@
 
   const isDownloadedVersion = (serviceKey: string, version: string) => {
     return serviceStates[serviceKey].downloadedVersions.includes(version);
+  };
+
+  const statusLabel = (status: ServiceStatus) => {
+    return statusOptions.find((option) => option.value === status)?.label ?? status;
+  };
+
+  const statusClass = (status: ServiceStatus) => {
+    if (status === "disabled") return "text-muted-foreground";
+    return "";
+  };
+
+  const toggleStatusPicker = (serviceKey: string) => {
+    const state = serviceStates[serviceKey];
+    state.isStatusPickerOpen = !state.isStatusPickerOpen;
+  };
+
+  const selectStatus = (serviceKey: string, status: ServiceStatus) => {
+    const state = serviceStates[serviceKey];
+    state.status = status;
+    state.isStatusPickerOpen = false;
   };
 
   const validatePort = (serviceKey: string) => {
@@ -373,7 +428,51 @@
               {/if}
             </div>
           </td>
-          <td class="p-3">{service.status}</td>
+          <td class="p-3">
+            <div class="relative inline-block">
+              <button
+                type="button"
+                class={`inline-flex h-8 items-center gap-2 rounded border px-2 text-left hover:bg-muted ${statusClass(state.status)}`}
+                aria-label={`Change ${service.name} status`}
+                title={`Change ${service.name} status`}
+                onclick={() => toggleStatusPicker(service.versionKey)}
+              >
+                <span>{statusLabel(state.status)}</span>
+                <ChevronDown class="h-3 w-3" />
+              </button>
+
+              {#if state.isStatusPickerOpen}
+                <div
+                  class="absolute left-0 z-10 mt-2 w-56 rounded-md border bg-background p-2 shadow-lg"
+                >
+                  {#each statusOptions as option}
+                    {@const StatusIcon = option.icon}
+                    <button
+                      type="button"
+                      class="flex w-full items-center justify-between gap-2 rounded px-2 py-2 text-left text-xs hover:bg-muted"
+                      onclick={() =>
+                        selectStatus(service.versionKey, option.value)}
+                    >
+                      <span class="flex min-w-0 items-center gap-2">
+                        <StatusIcon
+                          class="h-4 w-4 shrink-0 text-muted-foreground"
+                        />
+                        <span class="min-w-0">
+                          <span class="block font-medium">{option.label}</span>
+                          <span class="block text-muted-foreground">
+                            {option.description}
+                          </span>
+                        </span>
+                      </span>
+                      {#if state.status === option.value}
+                        <Check class="h-3 w-3 shrink-0 text-muted-foreground" />
+                      {/if}
+                    </button>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          </td>
           <td class="p-3">
             <div class="relative inline-block">
               <button
