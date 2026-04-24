@@ -48,11 +48,10 @@ fn compare_versions_desc(a: &str, b: &str) -> std::cmp::Ordering {
     std::cmp::Ordering::Equal
 }
 
-#[tauri::command]
-async fn fetch_php_versions() -> Result<Vec<String>, String> {
-    let url = "https://hub.docker.com/v2/repositories/library/php/tags?page_size=100";
+async fn fetch_docker_versions(image: &str) -> Result<Vec<String>, String> {
+    let url = format!("https://hub.docker.com/v2/repositories/library/{}/tags?page_size=100", image);
 
-    let response = reqwest::get(url)
+    let response = reqwest::get(&url)
         .await
         .map_err(|e| format!("Error de red: {e}"))?;
 
@@ -77,11 +76,36 @@ async fn fetch_php_versions() -> Result<Vec<String>, String> {
     Ok(versions)
 }
 
+#[tauri::command]
+async fn fetch_php_versions() -> Result<Vec<String>, String> {
+    fetch_docker_versions("php").await
+}
+
+#[tauri::command]
+async fn fetch_apache_versions() -> Result<Vec<String>, String> {
+    fetch_docker_versions("httpd").await
+}
+
+#[tauri::command]
+async fn fetch_mysql_versions() -> Result<Vec<String>, String> {
+    fetch_docker_versions("mysql").await
+}
+
+#[tauri::command]
+async fn fetch_redis_versions() -> Result<Vec<String>, String> {
+    fetch_docker_versions("redis").await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-    .invoke_handler(tauri::generate_handler![fetch_php_versions])
+    .invoke_handler(tauri::generate_handler![
+        fetch_php_versions,
+        fetch_apache_versions,
+        fetch_mysql_versions,
+        fetch_redis_versions
+    ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
