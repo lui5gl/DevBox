@@ -13,6 +13,7 @@
     Plug,
     ChevronDown,
     Download,
+    Check,
     CheckCircle2,
   } from "lucide-svelte";
 
@@ -64,6 +65,10 @@
     search: string;
     isLoading: boolean;
     loadError: string;
+    port: number;
+    portDraft: string;
+    portError: string;
+    isPortEditorOpen: boolean;
   };
 
   let serviceStates: Record<string, ServiceState> = $state(
@@ -79,6 +84,10 @@
           search: "",
           isLoading: false,
           loadError: "",
+          port: s.port,
+          portDraft: String(s.port),
+          portError: "",
+          isPortEditorOpen: false,
         },
       ]),
     ),
@@ -173,6 +182,28 @@
 
   const isDownloadedVersion = (serviceKey: string, version: string) => {
     return serviceStates[serviceKey].downloadedVersions.includes(version);
+  };
+
+  const validatePort = (serviceKey: string) => {
+    const state = serviceStates[serviceKey];
+    const port = Number(state.portDraft);
+
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      state.portError = "Use a port from 1 to 65535.";
+      return;
+    }
+
+    state.port = port;
+    state.portDraft = String(port);
+    state.portError = "";
+    state.isPortEditorOpen = false;
+  };
+
+  const togglePortEditor = (serviceKey: string) => {
+    const state = serviceStates[serviceKey];
+    state.isPortEditorOpen = !state.isPortEditorOpen;
+    state.portDraft = String(state.port);
+    state.portError = "";
   };
 </script>
 
@@ -343,7 +374,53 @@
             </div>
           </td>
           <td class="p-3">{service.status}</td>
-          <td class="p-3">{service.port}</td>
+          <td class="p-3">
+            <div class="relative inline-block">
+              <button
+                type="button"
+                class="inline-flex h-8 items-center gap-2 rounded border px-2 text-left hover:bg-muted"
+                aria-label={`Change ${service.name} port`}
+                title={`Change ${service.name} port`}
+                onclick={() => togglePortEditor(service.versionKey)}
+              >
+                <span>{state.port}</span>
+                <ChevronDown class="h-3 w-3 text-muted-foreground" />
+              </button>
+
+              {#if state.isPortEditorOpen}
+                <div
+                  class="absolute right-0 z-10 mt-2 w-56 rounded-md border bg-background p-3 shadow-lg"
+                >
+                  <p class="mb-2 text-xs text-muted-foreground">
+                    Change {service.name} port
+                  </p>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      bind:value={state.portDraft}
+                      aria-label={`${service.name} port`}
+                      placeholder="Port"
+                      class="h-8 min-w-0 flex-1 rounded border px-2 text-sm"
+                    />
+                    <button
+                      type="button"
+                      class="inline-flex h-8 items-center justify-center gap-1 rounded border px-2 text-xs hover:bg-muted"
+                      aria-label={`Validate ${service.name} port`}
+                      title="Validate"
+                      onclick={() => validatePort(service.versionKey)}
+                    >
+                      <Check class="h-3 w-3" />
+                      Validate
+                    </button>
+                  </div>
+                  {#if state.portError}
+                    <p class="mt-2 text-xs text-red-500">{state.portError}</p>
+                  {/if}
+                </div>
+              {/if}
+            </div>
+          </td>
         </tr>
       {/each}
     </tbody>
