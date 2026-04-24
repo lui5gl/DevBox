@@ -12,7 +12,7 @@
     Tag,
     Activity,
     Plug,
-    MoreHorizontal,
+    EllipsisVertical,
   } from "lucide-svelte";
 
   type ServiceRow = {
@@ -24,10 +24,34 @@
   };
 
   const services: ServiceRow[] = [
-    { name: "Apache", version: "2.4.58", status: "running", port: 80, versionKey: "apache" },
-    { name: "PHP", version: "8.2.17", status: "running", port: 9000, versionKey: "php" },
-    { name: "MySQL", version: "8.0.32", status: "running", port: 3306, versionKey: "mysql" },
-    { name: "Redis", version: "7.0.10", status: "stopped", port: 6379, versionKey: "redis" },
+    {
+      name: "Apache",
+      version: "2.4.58",
+      status: "running",
+      port: 80,
+      versionKey: "apache",
+    },
+    {
+      name: "PHP",
+      version: "8.2.17",
+      status: "running",
+      port: 9000,
+      versionKey: "php",
+    },
+    {
+      name: "MySQL",
+      version: "8.0.32",
+      status: "running",
+      port: 3306,
+      versionKey: "mysql",
+    },
+    {
+      name: "Redis",
+      version: "7.0.10",
+      status: "stopped",
+      port: 6379,
+      versionKey: "redis",
+    },
   ];
 
   type ServiceState = {
@@ -53,8 +77,8 @@
           isLoading: false,
           loadError: "",
         },
-      ])
-    )
+      ]),
+    ),
   );
 
   const normalizeVersion = (tag: string) => {
@@ -126,7 +150,7 @@
   const filteredVersions = (serviceKey: string) => {
     const state = serviceStates[serviceKey];
     return state.availableVersions.filter((version) =>
-      version.toLowerCase().includes(state.search.toLowerCase())
+      version.toLowerCase().includes(state.search.toLowerCase()),
     );
   };
 
@@ -167,18 +191,18 @@
             Port
           </div>
         </th>
-        <th class="p-3">
-          <div class="flex items-center gap-2">
-            <MoreHorizontal class="h-4 w-4" />
-            Action
-          </div>
-        </th>
+        <th> </th>
       </tr>
     </thead>
     <tbody>
       {#each services as service}
         {@const state = serviceStates[service.versionKey]}
-        {@const ServiceIcon = service.versionKey === "apache" || service.versionKey === "php" ? Globe : service.versionKey === "mysql" ? Database : Zap}
+        {@const ServiceIcon =
+          service.versionKey === "apache" || service.versionKey === "php"
+            ? Globe
+            : service.versionKey === "mysql"
+              ? Database
+              : Zap}
         <tr class="border-t align-top">
           <td class="p-3">
             <div class="flex items-center gap-2">
@@ -193,41 +217,59 @@
             <div class="relative">
               <button
                 type="button"
-                class="flex items-center gap-1 rounded border px-3 py-1 text-xs hover:bg-muted"
+                class="flex h-8 w-8 items-center justify-center rounded border text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label={`Opciones de ${service.name}`}
+                title={`Opciones de ${service.name}`}
                 onclick={() => togglePicker(service.versionKey)}
               >
-                <ServiceIcon class="h-3 w-3" />
-                {state.selectedVersion}
+                <EllipsisVertical class="h-4 w-4" />
               </button>
 
               {#if state.isPickerOpen}
-                <div class="absolute right-0 z-10 mt-2 w-72 rounded-md border bg-background p-3 shadow-lg">
-                  <p class="mb-2 text-xs text-muted-foreground">Selecciona la version de {service.name}</p>
+                <div
+                  class="absolute right-0 z-10 mt-2 w-72 rounded-md border bg-background p-3 shadow-lg"
+                >
+                  {#if state.isAddingVersion}
+                    <p class="mb-2 text-xs text-muted-foreground">
+                      Buscar versiones de {service.name}
+                    </p>
+                  {:else}
+                    <p class="mb-2 text-xs text-muted-foreground">
+                      Versiones descargadas de {service.name}
+                    </p>
+                  {/if}
 
                   {#if state.isLoading}
-                    <p class="text-xs text-muted-foreground">Cargando versiones...</p>
+                    <p class="text-xs text-muted-foreground">
+                      Cargando versiones...
+                    </p>
                   {:else if state.loadError}
                     <p class="text-xs text-red-500">{state.loadError}</p>
                   {:else if state.isAddingVersion}
                     <div class="relative">
-                      <Search class="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+                      <Search
+                        class="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground"
+                      />
                       <input
                         type="text"
                         bind:value={state.search}
-                        placeholder="Buscar version..."
+                        placeholder="Buscar versión..."
                         class="mb-2 w-full rounded border pl-8 pr-2 py-1 text-xs"
                       />
                     </div>
 
                     {#if filteredVersions(service.versionKey).length === 0}
-                      <p class="text-xs text-muted-foreground">No hay resultados para tu busqueda.</p>
+                      <p class="text-xs text-muted-foreground">
+                        No hay resultados para tu búsqueda.
+                      </p>
                     {:else}
                       <div class="max-h-48 overflow-y-auto rounded border">
                         {#each filteredVersions(service.versionKey) as version}
                           <button
                             type="button"
                             class="block w-full border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
-                            onclick={() => selectVersion(service.versionKey, version)}
+                            onclick={() =>
+                              selectVersion(service.versionKey, version)}
                           >
                             {version}
                           </button>
@@ -245,13 +287,16 @@
                     </button>
                   {:else}
                     {#if downloadedVersions(service.versionKey).length > 0}
-                      <p class="mb-2 text-xs font-medium">Versiones descargadas</p>
+                      <p class="mb-2 text-xs font-medium">
+                        Versiones descargadas
+                      </p>
                       <div class="max-h-48 overflow-y-auto rounded border">
                         {#each downloadedVersions(service.versionKey) as version}
                           <button
                             type="button"
                             class="block w-full border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
-                            onclick={() => selectVersion(service.versionKey, version)}
+                            onclick={() =>
+                              selectVersion(service.versionKey, version)}
                           >
                             {version}
                           </button>
@@ -265,7 +310,7 @@
                       onclick={() => openAddMode(service.versionKey)}
                     >
                       <Plus class="h-3 w-3" />
-                      Anadir version
+                      Añadir versión
                     </button>
                   {/if}
                 </div>
