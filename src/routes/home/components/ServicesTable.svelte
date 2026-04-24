@@ -58,18 +58,18 @@
 
   const services: ServiceRow[] = [
     {
-      name: "Apache",
-      version: "2.4.58",
-      status: "running",
-      port: 80,
-      versionKey: "apache",
-    },
-    {
       name: "PHP",
       version: "8.2.17",
       status: "running",
       port: 9000,
       versionKey: "php",
+    },
+    {
+      name: "Apache",
+      version: "2.4.58",
+      status: "running",
+      port: 80,
+      versionKey: "apache",
     },
     {
       name: "MySQL",
