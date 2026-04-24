@@ -12,6 +12,8 @@
     Activity,
     Plug,
     EllipsisVertical,
+    Download,
+    CheckCircle2,
   } from "lucide-svelte";
 
   type ServiceRow = {
@@ -168,6 +170,10 @@
   const downloadedVersions = (serviceKey: string) => {
     return serviceStates[serviceKey].downloadedVersions;
   };
+
+  const isDownloadedVersion = (serviceKey: string, version: string) => {
+    return serviceStates[serviceKey].downloadedVersions.includes(version);
+  };
 </script>
 
 <div class="w-full max-w-3xl mt-4 rounded-md border">
@@ -275,11 +281,20 @@
                           {#each filteredVersions(service.versionKey) as version}
                             <button
                               type="button"
-                              class="block w-full border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
+                              class="flex w-full items-center justify-between gap-2 border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
                               onclick={() =>
                                 selectVersion(service.versionKey, version)}
                             >
-                              {version}
+                              <span>{version}</span>
+                              {#if isDownloadedVersion(service.versionKey, version)}
+                                <CheckCircle2
+                                  class="h-3 w-3 shrink-0 text-emerald-500"
+                                />
+                              {:else}
+                                <Download
+                                  class="h-3 w-3 shrink-0 text-muted-foreground"
+                                />
+                              {/if}
                             </button>
                           {/each}
                         </div>
@@ -300,11 +315,14 @@
                         {#each downloadedVersions(service.versionKey) as version}
                           <button
                             type="button"
-                            class="block w-full border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
+                            class="flex w-full items-center justify-between gap-2 border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
                             onclick={() =>
                               selectVersion(service.versionKey, version)}
                           >
-                            {version}
+                            <span>{version}</span>
+                            <CheckCircle2
+                              class="h-3 w-3 shrink-0 text-emerald-500"
+                            />
                           </button>
                         {/each}
                       </div>
