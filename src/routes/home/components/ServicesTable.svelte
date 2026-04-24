@@ -18,7 +18,7 @@
     Check,
     CheckCircle2,
     Play,
-  } from "lucide-svelte";
+  } from "@lucide/svelte";
 
   type ServiceRow = {
     name: string;
