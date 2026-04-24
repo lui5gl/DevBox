@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use tauri::Manager;
 
-const APP_ICON: tauri::image::Image<'static> = tauri::include_image!("./icons/32x32.png");
+const APP_ICON: tauri::image::Image<'static> = tauri::include_image!("./icons/icon.png");
 
 #[derive(Deserialize)]
 struct DockerHubTag {
