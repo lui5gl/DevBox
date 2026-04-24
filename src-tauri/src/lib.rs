@@ -1,4 +1,7 @@
 use serde::Deserialize;
+use tauri::Manager;
+
+const APP_ICON: tauri::image::Image<'static> = tauri::include_image!("./icons/32x32.png");
 
 #[derive(Deserialize)]
 struct DockerHubTag {
@@ -16,14 +19,13 @@ fn normalize_version(tag: &str) -> Option<String> {
         return None;
     }
 
-    if !tag
-        .chars()
-        .all(|c| c.is_ascii_digit() || c == '.')
-    {
+    if !tag.chars().all(|c| c.is_ascii_digit() || c == '.') {
         return None;
     }
 
-    let valid_segments = tag.split('.').all(|segment| !segment.is_empty() && segment.chars().all(|c| c.is_ascii_digit()));
+    let valid_segments = tag
+        .split('.')
+        .all(|segment| !segment.is_empty() && segment.chars().all(|c| c.is_ascii_digit()));
     if !valid_segments {
         return None;
     }
@@ -32,8 +34,14 @@ fn normalize_version(tag: &str) -> Option<String> {
 }
 
 fn compare_versions_desc(a: &str, b: &str) -> std::cmp::Ordering {
-    let pa: Vec<u32> = a.split('.').map(|x| x.parse::<u32>().unwrap_or(0)).collect();
-    let pb: Vec<u32> = b.split('.').map(|x| x.parse::<u32>().unwrap_or(0)).collect();
+    let pa: Vec<u32> = a
+        .split('.')
+        .map(|x| x.parse::<u32>().unwrap_or(0))
+        .collect();
+    let pb: Vec<u32> = b
+        .split('.')
+        .map(|x| x.parse::<u32>().unwrap_or(0))
+        .collect();
     let size = pa.len().max(pb.len());
 
     for i in 0..size {
@@ -49,7 +57,10 @@ fn compare_versions_desc(a: &str, b: &str) -> std::cmp::Ordering {
 }
 
 async fn fetch_docker_versions(image: &str) -> Result<Vec<String>, String> {
-    let url = format!("https://hub.docker.com/v2/repositories/library/{}/tags?page_size=100", image);
+    let url = format!(
+        "https://hub.docker.com/v2/repositories/library/{}/tags?page_size=100",
+        image
+    );
 
     let response = reqwest::get(&url)
         .await
@@ -100,12 +111,20 @@ async fn fetch_redis_versions() -> Result<Vec<String>, String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-    .invoke_handler(tauri::generate_handler![
-        fetch_php_versions,
-        fetch_apache_versions,
-        fetch_mysql_versions,
-        fetch_redis_versions
-    ])
+        .setup(|app| {
+            if let Some(window) = app.get_webview_window("main") {
+                window.set_title("DevBox")?;
+                window.set_icon(APP_ICON)?;
+            }
+
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![
+            fetch_php_versions,
+            fetch_apache_versions,
+            fetch_mysql_versions,
+            fetch_redis_versions
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
