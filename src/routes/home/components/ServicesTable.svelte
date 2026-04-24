@@ -254,7 +254,7 @@
                     {:else if state.loadError}
                       <p class="text-xs text-red-500">{state.loadError}</p>
                     {:else}
-                      <div class="relative">
+                      <div class="relative mb-2">
                         <Search
                           class="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground"
                         />
@@ -262,7 +262,7 @@
                           type="text"
                           bind:value={state.search}
                           placeholder="Buscar versión..."
-                          class="mb-2 w-full rounded border pl-8 pr-2 py-1 text-xs"
+                          class="w-full rounded border pl-8 pr-2 py-1 text-xs"
                         />
                       </div>
 
