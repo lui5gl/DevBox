@@ -116,7 +116,7 @@
 
       state.availableVersions = [...new Set(parsed)].sort(compareVersionsDesc);
     } catch {
-      state.loadError = `No se pudieron cargar las versiones de ${serviceKey.toUpperCase()} desde el backend.`;
+      state.loadError = `Could not load ${serviceKey.toUpperCase()} versions from the backend.`;
     } finally {
       state.isLoading = false;
     }
@@ -231,8 +231,8 @@
               <button
                 type="button"
                 class="flex h-8 w-8 items-center justify-center rounded border text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label={`Opciones de ${service.name}`}
-                title={`Opciones de ${service.name}`}
+                aria-label={`${service.name} options`}
+                title={`${service.name} options`}
                 onclick={() => togglePicker(service.versionKey)}
               >
                 <EllipsisVertical class="h-4 w-4" />
@@ -244,18 +244,18 @@
                 >
                   {#if state.isAddingVersion}
                     <p class="mb-2 text-xs text-muted-foreground">
-                      Buscar versiones de {service.name}
+                      Search {service.name} versions
                     </p>
                   {:else}
                     <p class="mb-2 text-xs text-muted-foreground">
-                      Versiones descargadas de {service.name}
+                      Installed {service.name} versions
                     </p>
                   {/if}
 
                   {#if state.isAddingVersion}
                     {#if state.isLoading}
                       <p class="text-xs text-muted-foreground">
-                        Cargando versiones...
+                        Loading versions...
                       </p>
                     {:else if state.loadError}
                       <p class="text-xs text-red-500">{state.loadError}</p>
@@ -267,14 +267,14 @@
                         <input
                           type="text"
                           bind:value={state.search}
-                          placeholder="Buscar versión..."
+                          placeholder="Search version..."
                           class="w-full rounded border pl-8 pr-2 py-1 text-xs"
                         />
                       </div>
 
                       {#if filteredVersions(service.versionKey).length === 0}
                         <p class="text-xs text-muted-foreground">
-                          No hay resultados para tu búsqueda.
+                          No results for your search.
                         </p>
                       {:else}
                         <div class="max-h-48 overflow-y-auto rounded border">
@@ -307,7 +307,7 @@
                       onclick={() => closeAddMode(service.versionKey)}
                     >
                       <ArrowLeft class="h-3 w-3" />
-                      Volver
+                      Back
                     </button>
                   {:else}
                     {#if downloadedVersions(service.versionKey).length > 0}
@@ -328,7 +328,7 @@
                       </div>
                     {:else}
                       <p class="text-xs text-muted-foreground">
-                        No hay versiones descargadas por ahora.
+                        No installed versions yet.
                       </p>
                     {/if}
 
@@ -338,7 +338,7 @@
                       onclick={() => openAddMode(service.versionKey)}
                     >
                       <Plus class="h-3 w-3" />
-                      Buscar otra versión
+                      Search another version
                     </button>
                   {/if}
                 </div>
