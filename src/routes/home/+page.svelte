@@ -3,7 +3,7 @@
   import Actions from "./components/Actions.svelte";
 </script>
 
-<div class="flex flex-col items-center gap-2 h-full">
+<div class="flex flex-col items-center gap-2 justify-between h-full">
   <Header />
   <Actions />
 </div>
