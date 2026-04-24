@@ -1,6 +1,15 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import { onMount } from "svelte";
+  import {
+    Plus,
+    Search,
+    ArrowLeft,
+    Server,
+    Database,
+    Zap,
+    Globe,
+  } from "lucide-svelte";
 
   type ServiceRow = {
     name: string;
@@ -130,7 +139,12 @@
   <table class="w-full text-sm">
     <thead class="bg-muted/50 text-left">
       <tr>
-        <th class="p-3">Service</th>
+        <th class="p-3">
+          <div class="flex items-center gap-2">
+            <Server class="h-4 w-4" />
+            Service
+          </div>
+        </th>
         <th class="p-3">Version</th>
         <th class="p-3">Status</th>
         <th class="p-3">Port</th>
@@ -140,8 +154,14 @@
     <tbody>
       {#each services as service}
         {@const state = serviceStates[service.versionKey]}
+        {@const ServiceIcon = service.versionKey === "apache" || service.versionKey === "php" ? Globe : service.versionKey === "mysql" ? Database : Zap}
         <tr class="border-t align-top">
-          <td class="p-3">{service.name}</td>
+          <td class="p-3">
+            <div class="flex items-center gap-2">
+              <ServiceIcon class="h-4 w-4 text-muted-foreground" />
+              {service.name}
+            </div>
+          </td>
           <td class="p-3">{state.selectedVersion}</td>
           <td class="p-3">{service.status}</td>
           <td class="p-3">{service.port}</td>
@@ -149,10 +169,11 @@
             <div class="relative">
               <button
                 type="button"
-                class="rounded border px-3 py-1 text-xs hover:bg-muted"
+                class="flex items-center gap-1 rounded border px-3 py-1 text-xs hover:bg-muted"
                 onclick={() => togglePicker(service.versionKey)}
               >
-                {service.name} {state.selectedVersion}
+                <ServiceIcon class="h-3 w-3" />
+                {state.selectedVersion}
               </button>
 
               {#if state.isPickerOpen}
@@ -164,12 +185,15 @@
                   {:else if state.loadError}
                     <p class="text-xs text-red-500">{state.loadError}</p>
                   {:else if state.isAddingVersion}
-                    <input
-                      type="text"
-                      bind:value={state.search}
-                      placeholder="Buscar version..."
-                      class="mb-2 w-full rounded border px-2 py-1 text-xs"
-                    />
+                    <div class="relative">
+                      <Search class="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="text"
+                        bind:value={state.search}
+                        placeholder="Buscar version..."
+                        class="mb-2 w-full rounded border pl-8 pr-2 py-1 text-xs"
+                      />
+                    </div>
 
                     {#if filteredVersions(service.versionKey).length === 0}
                       <p class="text-xs text-muted-foreground">No hay resultados para tu busqueda.</p>
@@ -189,9 +213,10 @@
 
                     <button
                       type="button"
-                      class="mt-2 w-full rounded border px-2 py-1 text-xs hover:bg-muted"
+                      class="mt-2 flex w-full items-center justify-center gap-1 rounded border px-2 py-1 text-xs hover:bg-muted"
                       onclick={() => closeAddMode(service.versionKey)}
                     >
+                      <ArrowLeft class="h-3 w-3" />
                       Volver
                     </button>
                   {:else}
@@ -212,9 +237,10 @@
 
                     <button
                       type="button"
-                      class="mt-2 w-full rounded border px-2 py-1 text-xs hover:bg-muted"
+                      class="mt-2 flex w-full items-center justify-center gap-1 rounded border px-2 py-1 text-xs hover:bg-muted"
                       onclick={() => openAddMode(service.versionKey)}
                     >
+                      <Plus class="h-3 w-3" />
                       Anadir version
                     </button>
                   {/if}
