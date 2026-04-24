@@ -224,8 +224,18 @@
   };
 
   const statusClass = (status: ServiceStatus) => {
-    if (status === "disabled") return "text-muted-foreground";
-    return "";
+    if (status === "running") {
+      return "border border-input bg-background text-foreground hover:bg-accent";
+    }
+    if (status === "stopped") {
+      return "border border-transparent bg-transparent text-muted-foreground hover:bg-accent";
+    }
+    return "border border-transparent bg-transparent text-muted-foreground hover:bg-accent";
+  };
+
+  const statusIconClass = (status: ServiceStatus) => {
+    if (status === "running") return "text-foreground";
+    return "text-muted-foreground";
   };
 
   const toggleStatusPicker = (serviceKey: string) => {
@@ -262,31 +272,31 @@
   };
 </script>
 
-<div class="w-full max-w-3xl rounded-md border">
+<div class="w-full max-w-3xl overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
   <table class="w-full text-sm">
-    <thead class="bg-muted/50 text-left">
+    <thead class="border-b bg-card text-left text-muted-foreground">
       <tr>
         <th class="p-3">
           <div class="flex items-center gap-2">
-            <Server class="h-4 w-4" />
+            <Server class="h-4 w-4 text-primary" />
             Service
           </div>
         </th>
         <th class="p-3">
           <div class="flex items-center gap-2">
-            <Tag class="h-4 w-4" />
+            <Tag class="h-4 w-4 text-primary" />
             Version
           </div>
         </th>
         <th class="p-3">
           <div class="flex items-center gap-2">
-            <Activity class="h-4 w-4" />
+            <Activity class="h-4 w-4 text-primary" />
             Status
           </div>
         </th>
         <th class="p-3">
           <div class="flex items-center gap-2">
-            <Plug class="h-4 w-4" />
+            <Plug class="h-4 w-4 text-primary" />
             Port
           </div>
         </th>
@@ -301,18 +311,20 @@
             : service.versionKey === "mysql"
               ? Database
               : Zap}
-        <tr class="border-t align-middle">
+        <tr class="border-t align-middle transition-colors hover:bg-accent/40">
           <td class="p-3">
-            <div class="flex items-center gap-2">
-              <ServiceIcon class="h-4 w-4 text-muted-foreground" />
-              {service.name}
+            <div class="flex items-center gap-3">
+              <span class="flex h-8 w-8 items-center justify-center rounded-md">
+                <ServiceIcon class="h-4 w-4 text-muted-foreground" />
+              </span>
+              <span class="font-medium">{service.name}</span>
             </div>
           </td>
           <td class="p-3">
             <div class="relative inline-block">
               <button
                 type="button"
-                class="inline-flex h-8 items-center gap-2 rounded border px-2 text-left hover:bg-muted"
+                class="inline-flex h-8 items-center gap-2 rounded-md border border-transparent bg-transparent px-2 text-left transition-colors hover:border-input hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={`Select ${service.name} version`}
                 title={`Select ${service.name} version`}
                 onclick={() => togglePicker(service.versionKey)}
@@ -323,7 +335,7 @@
 
               {#if state.isPickerOpen}
                 <div
-                  class="absolute left-0 z-10 mt-2 w-72 rounded-md border bg-background p-3 shadow-lg"
+                  class="absolute left-0 z-10 mt-2 w-72 rounded-md border border-border/60 bg-popover p-3 text-popover-foreground shadow-lg"
                 >
                   {#if state.isAddingVersion}
                     <p class="mb-2 text-xs text-muted-foreground">
@@ -341,7 +353,7 @@
                         Loading versions...
                       </p>
                     {:else if state.loadError}
-                      <p class="text-xs text-red-500">{state.loadError}</p>
+                      <p class="text-xs text-destructive">{state.loadError}</p>
                     {:else}
                       <div class="relative mb-2">
                         <Search
@@ -351,7 +363,7 @@
                           type="text"
                           bind:value={state.search}
                           placeholder="Search version..."
-                          class="w-full rounded border pl-8 pr-2 py-1 text-xs"
+                          class="w-full rounded-md border border-input bg-transparent py-1 pl-8 pr-2 text-xs focus-visible:ring-2 focus-visible:ring-ring"
                         />
                       </div>
 
@@ -360,18 +372,18 @@
                           No results for your search.
                         </p>
                       {:else}
-                        <div class="max-h-48 overflow-y-auto rounded border">
+                        <div class="max-h-48 overflow-y-auto rounded-md p-1">
                           {#each filteredVersions(service.versionKey) as version}
                             <button
                               type="button"
-                              class="flex w-full items-center justify-between gap-2 border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
+                              class="flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-xs transition-colors hover:bg-accent"
                               onclick={() =>
                                 selectVersion(service.versionKey, version)}
                             >
                               <span>{version}</span>
                               {#if isDownloadedVersion(service.versionKey, version)}
                                 <CheckCircle2
-                                  class="h-3 w-3 shrink-0 text-emerald-500"
+                                  class="h-3 w-3 shrink-0 text-foreground"
                                 />
                               {:else}
                                 <Download
@@ -386,7 +398,7 @@
 
                     <button
                       type="button"
-                      class="mt-2 flex w-full items-center justify-center gap-1 rounded border px-2 py-1 text-xs hover:bg-muted"
+                      class="mt-2 flex w-full items-center justify-center gap-1 rounded-md border border-input bg-background px-2 py-1 text-xs transition-colors hover:bg-accent"
                       onclick={() => closeAddMode(service.versionKey)}
                     >
                       <ArrowLeft class="h-3 w-3" />
@@ -394,17 +406,17 @@
                     </button>
                   {:else}
                     {#if downloadedVersions(service.versionKey).length > 0}
-                      <div class="max-h-48 overflow-y-auto rounded border">
+                      <div class="max-h-48 overflow-y-auto rounded-md p-1">
                         {#each downloadedVersions(service.versionKey) as version}
                           <button
                             type="button"
-                            class="flex w-full items-center justify-between gap-2 border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
+                            class="flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-xs transition-colors hover:bg-accent"
                             onclick={() =>
                               selectVersion(service.versionKey, version)}
                           >
                             <span>{version}</span>
                             <CheckCircle2
-                              class="h-3 w-3 shrink-0 text-emerald-500"
+                              class="h-3 w-3 shrink-0 text-foreground"
                             />
                           </button>
                         {/each}
@@ -417,7 +429,7 @@
 
                     <button
                       type="button"
-                      class="mt-2 flex w-full items-center justify-center gap-1 rounded border px-2 py-1 text-xs hover:bg-muted"
+                      class="mt-2 flex w-full items-center justify-center gap-1 rounded-md border border-input bg-background px-2 py-1 text-xs font-medium transition-colors hover:bg-accent"
                       onclick={() => openAddMode(service.versionKey)}
                     >
                       <Plus class="h-3 w-3" />
@@ -432,7 +444,7 @@
             <div class="relative inline-block">
               <button
                 type="button"
-                class={`inline-flex h-8 items-center gap-2 rounded border px-2 text-left hover:bg-muted ${statusClass(state.status)}`}
+                class={`inline-flex h-8 items-center gap-2 rounded-md px-2 text-left text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring ${statusClass(state.status)}`}
                 aria-label={`Change ${service.name} status`}
                 title={`Change ${service.name} status`}
                 onclick={() => toggleStatusPicker(service.versionKey)}
@@ -443,19 +455,19 @@
 
               {#if state.isStatusPickerOpen}
                 <div
-                  class="absolute left-0 z-10 mt-2 w-56 rounded-md border bg-background p-2 shadow-lg"
+                  class="absolute left-0 z-10 mt-2 w-56 rounded-md border border-border/60 bg-popover p-2 text-popover-foreground shadow-lg"
                 >
                   {#each statusOptions as option}
                     {@const StatusIcon = option.icon}
                     <button
                       type="button"
-                      class="flex w-full items-center justify-between gap-2 rounded px-2 py-2 text-left text-xs hover:bg-muted"
+                      class="flex w-full items-center justify-between gap-2 rounded px-2 py-2 text-left text-xs transition-colors hover:bg-accent"
                       onclick={() =>
                         selectStatus(service.versionKey, option.value)}
                     >
                       <span class="flex min-w-0 items-center gap-2">
                         <StatusIcon
-                          class="h-4 w-4 shrink-0 text-muted-foreground"
+                          class={`h-4 w-4 shrink-0 ${statusIconClass(option.value)}`}
                         />
                         <span class="min-w-0">
                           <span class="block font-medium">{option.label}</span>
@@ -477,7 +489,7 @@
             <div class="relative inline-block">
               <button
                 type="button"
-                class="inline-flex h-8 items-center gap-2 rounded border px-2 text-left hover:bg-muted"
+                class="inline-flex h-8 items-center gap-2 rounded-md border border-transparent bg-transparent px-2 text-left transition-colors hover:border-input hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={`Change ${service.name} port`}
                 title={`Change ${service.name} port`}
                 onclick={() => togglePortEditor(service.versionKey)}
@@ -488,7 +500,7 @@
 
               {#if state.isPortEditorOpen}
                 <div
-                  class="absolute right-0 z-10 mt-2 w-56 rounded-md border bg-background p-3 shadow-lg"
+                  class="absolute right-0 z-10 mt-2 w-56 rounded-md border border-border/60 bg-popover p-3 text-popover-foreground shadow-lg"
                 >
                   <p class="mb-2 text-xs text-muted-foreground">
                     Change {service.name} port
@@ -500,11 +512,11 @@
                       bind:value={state.portDraft}
                       aria-label={`${service.name} port`}
                       placeholder="Port"
-                      class="h-8 min-w-0 flex-1 rounded border px-2 text-sm"
+                      class="h-8 min-w-0 flex-1 rounded-md border border-input bg-transparent px-2 text-sm focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <button
                       type="button"
-                      class="inline-flex h-8 items-center justify-center gap-1 rounded border px-2 text-xs hover:bg-muted"
+                      class="inline-flex h-8 items-center justify-center gap-1 rounded-md bg-primary px-2 text-xs text-primary-foreground transition-colors hover:bg-primary/90"
                       aria-label={`Validate ${service.name} port`}
                       title="Validate"
                       onclick={() => validatePort(service.versionKey)}
@@ -514,7 +526,7 @@
                     </button>
                   </div>
                   {#if state.portError}
-                    <p class="mt-2 text-xs text-red-500">{state.portError}</p>
+                    <p class="mt-2 text-xs text-destructive">{state.portError}</p>
                   {/if}
                 </div>
               {/if}
