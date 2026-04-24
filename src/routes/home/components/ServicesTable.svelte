@@ -524,7 +524,7 @@
                       onclick={() => validatePort(service.versionKey)}
                     >
                       <Check class="h-3 w-3" />
-                      Validate
+                      Check
                     </button>
                   </div>
                   {#if state.portError}
