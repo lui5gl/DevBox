@@ -216,7 +216,7 @@
             : service.versionKey === "mysql"
               ? Database
               : Zap}
-        <tr class="border-t align-top">
+        <tr class="border-t align-middle">
           <td class="p-3">
             <div class="flex items-center gap-2">
               <ServiceIcon class="h-4 w-4 text-muted-foreground" />
