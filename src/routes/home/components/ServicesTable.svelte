@@ -220,7 +220,9 @@
   };
 
   const statusLabel = (status: ServiceStatus) => {
-    return statusOptions.find((option) => option.value === status)?.label ?? status;
+    return (
+      statusOptions.find((option) => option.value === status)?.label ?? status
+    );
   };
 
   const statusClass = (status: ServiceStatus) => {
@@ -272,9 +274,9 @@
   };
 </script>
 
-<div class="w-full max-w-3xl overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
+<div class="w-full max-w-3xl overflow-hidden rounded-lg text-card-foreground">
   <table class="w-full text-sm">
-    <thead class="border-b bg-card text-left text-muted-foreground">
+    <thead class="border-b text-left text-muted-foreground font-semibold">
       <tr>
         <th class="p-3">
           <div class="flex items-center gap-2">
@@ -444,7 +446,7 @@
             <div class="relative inline-block">
               <button
                 type="button"
-                class={`inline-flex h-8 items-center gap-2 rounded-md px-2 text-left text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring ${statusClass(state.status)}`}
+                class="inline-flex h-8 items-center gap-2 rounded-md border border-transparent bg-transparent px-2 text-left transition-colors hover:border-input hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={`Change ${service.name} status`}
                 title={`Change ${service.name} status`}
                 onclick={() => toggleStatusPicker(service.versionKey)}
@@ -526,7 +528,9 @@
                     </button>
                   </div>
                   {#if state.portError}
-                    <p class="mt-2 text-xs text-destructive">{state.portError}</p>
+                    <p class="mt-2 text-xs text-destructive">
+                      {state.portError}
+                    </p>
                   {/if}
                 </div>
               {/if}
