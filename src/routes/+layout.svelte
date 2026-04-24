@@ -4,6 +4,6 @@
   const { children } = $props();
 </script>
 
-<div class="p-4">
+<div class="p-2">
   {@render children()}
 </div>
