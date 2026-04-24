@@ -12,9 +12,10 @@
   "app": {
     "windows": [
       {
-        "title": "dev_box",
-        "width": 800,
-        "height": 600
+        "title": "DevBox",
+        "width": 576,
+        "height": 600,
+        "resizable": false
       }
     ],
     "security": {
