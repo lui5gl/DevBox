@@ -154,7 +154,7 @@
     );
   };
 
-  const downloadedVersions = (serviceKey: string) => {
+  const suggestedVersions = (serviceKey: string) => {
     return serviceStates[serviceKey].availableVersions.slice(0, 12);
   };
 
@@ -235,7 +235,7 @@
                     </p>
                   {:else}
                     <p class="mb-2 text-xs text-muted-foreground">
-                      Versiones descargadas de {service.name}
+                      Versiones disponibles de {service.name}
                     </p>
                   {/if}
 
@@ -286,12 +286,9 @@
                       Volver
                     </button>
                   {:else}
-                    {#if downloadedVersions(service.versionKey).length > 0}
-                      <p class="mb-2 text-xs font-medium">
-                        Versiones descargadas
-                      </p>
+                    {#if suggestedVersions(service.versionKey).length > 0}
                       <div class="max-h-48 overflow-y-auto rounded border">
-                        {#each downloadedVersions(service.versionKey) as version}
+                        {#each suggestedVersions(service.versionKey) as version}
                           <button
                             type="button"
                             class="block w-full border-b px-2 py-1 text-left text-xs last:border-b-0 hover:bg-muted"
@@ -302,6 +299,10 @@
                           </button>
                         {/each}
                       </div>
+                    {:else}
+                      <p class="text-xs text-muted-foreground">
+                        No hay versiones disponibles por ahora.
+                      </p>
                     {/if}
 
                     <button
